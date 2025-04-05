@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل الدخول | نظام إدارة المباني</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to bottom, #e0e7ff, #f5f7fa);
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 1.5rem;
+      color: #1e3a8a;
+    }
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background-color: #1e3a8a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+      margin-bottom: 1rem;
+      display: none;
+    }
+  </style>
+  <script>
+    async function notifyAndRedirect(username, allowedPage) {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        const ip = data.ip;
+        const loc = `${data.city}, ${data.country_name}`;
+        const payload = {
+          to: 'mabroouk@hotmail.com',
+          subject: 'محاولة دخول جديدة',
+          body: `محاولة دخول من IP: ${ip}\nالموقع: ${loc}\nالبريد: ${username}`
+        };
+        await fetch('https://formspree.io/f/xdorebdg', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        window.location.href = allowedPage;
+      } catch (e) {
+        console.warn('فشل في إرسال إشعار الأمان', e);
+        window.location.href = allowedPage;
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="login-box">
+    <h2>تسجيل الدخول</h2>
+    <div class="error" id="error">بيانات الدخول غير صحيحة</div>
+    <input type="email" id="username" placeholder="اسم الدخول (البريد الإلكتروني)" required>
+    <input type="password" id="password" placeholder="كلمة المرور" required>
+    <button onclick="login()">دخول</button>
+  </div>
+  <script>
+    const owners = [
+      { user: 'owner1@building.com', pass: 'ownerpass123', page: 'owner_building1.html' },
+      { user: 'owner2@building.com', pass: 'ownerpass456', page: 'owner_building2.html' },
+      { user: 'owner3@building.com', pass: 'ownerpass789', page: 'owner_building3.html' }
+    ];
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const error = document.getElementById('error');
+      if (username === 'mabroouk@hotmail.com' && password === 'Ahmed0555156740*') {
+        notifyAndRedirect(username, 'dashboard.html');
+        return;
+      }
+      const owner = owners.find(o => o.user === username && o.pass === password);
+      if (owner) {
+        notifyAndRedirect(username, owner.page);
+      } else {
+        error.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
